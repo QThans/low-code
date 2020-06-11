@@ -1,0 +1,33 @@
+{
+    "name": "thans/bpm",
+    "description": "description...",
+    "type": "library",
+    "keywords": ["dcat-admin", "extension"],
+    "homepage": "https://github.com/thans/bpm",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "your name",
+            "email": "your email"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "dcat/laravel-admin": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Thans\\Bpm\\": "src/"
+        },
+         "files": [
+            "src/bootstrap.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Thans\\Bpm\\BpmServiceProvider"
+            ]
+        }
+    }
+}
