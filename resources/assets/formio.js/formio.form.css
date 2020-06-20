@@ -261,6 +261,12 @@ td > .form-group {
 .choices__list--single {
   padding: 0; }
 
+.choices__item.choices__item--selectable {
+  white-space: nowrap;
+  overflow: hidden;
+  padding-right: 25px;
+  text-overflow: ellipsis; }
+
 .choices__input {
   padding: 2px; }
 
@@ -402,6 +408,12 @@ td > .form-group {
 html.formio-dialog-open,
 body.formio-dialog-open {
   overflow: hidden; }
+
+.formio-dialog .tab-content {
+  padding-top: 12px; }
+
+.formio-dialog-close {
+  z-index: 1000; }
 
 @-webkit-keyframes formio-dialog-flyin {
   0% {

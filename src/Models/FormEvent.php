@@ -2,10 +2,13 @@
 
 namespace Thans\Bpm\Models;
 
+use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Illuminate\Database\Eloquent\Model;
+use Overtrue\LaravelVersionable\Versionable;
 
 class FormEvent extends Model
 {
+    use HasDateTimeFormatter, Versionable;
     /**
      * 表单数据事件
      * 事件内容：PHP代码

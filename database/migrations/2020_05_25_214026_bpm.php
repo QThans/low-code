@@ -20,13 +20,24 @@ class Bpm extends Migration
         Schema::create('forms', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->integer('apps_id');
             $table->string('alias');
             $table->text('description');
             $table->tinyInteger('type')->comment('0-数据表单 1-流程表单')->default(0);
             $table->integer('user_id');
             $table->tinyInteger('status')->comment('0-正常')->default(0);
+            $table->integer('order')->nullable(true)->default(0);
             $table->timestamps();
         });
+        //数据存储
+        Schema::create('form_submissions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('form_id');
+            $table->jsonb('submission');
+            $table->integer('user_id');
+            $table->timestamps();
+        });
+
         Schema::create('form_components', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id');
@@ -41,30 +52,61 @@ class Bpm extends Migration
             $table->longText('event');
             $table->timestamps();
         });
-        Schema::create('form_roles', function (Blueprint $table) {
-            $table->increments('id');
+        //表单授权部门
+        Schema::create('form_auth_departments', function (Blueprint $table) {
             $table->integer('form_id');
-            $table->string('name');
-            $table->text('description');
-            $table->string('actions');
-            $table->text('fields');
-            $table->jsonb('datas');
+            $table->integer('department_id');
+            $table->string('actions'); //权限类型权限类型:store\edit\show\create\update\destroy
             $table->timestamps();
         });
-        Schema::create('form_role_users', function (Blueprint $table) {
-            $table->integer('role_id');
+        //表单授权用户
+        Schema::create('form_auth_users', function (Blueprint $table) {
+            $table->integer('form_id');
             $table->integer('user_id');
+            $table->string('actions'); //权限类型:store\edit\show\create\update\destroy
             $table->timestamps();
         });
-        Schema::create('form_departments', function (Blueprint $table) {
+        //表单数据表格
+        Schema::create('form_tables', function (Blueprint $table) {
+            $table->integer('form_id');
+            $table->text('code');
+            $table->jsonb('fields');
+            $table->jsonb('filters');
+            $table->timestamps();
+        });
+        Schema::create('departments', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->integer('order')->default(0);
-            $table->integer('parent_id');
+            $table->integer('parent_id')->default(0);
             $table->timestamps();
         });
-        Schema::create('form_department_users', function (Blueprint $table) {
+        //用户所属部门
+        Schema::create('department_users', function (Blueprint $table) {
             $table->integer('department_id');
+            $table->integer('user_id');
+            $table->timestamps();
+        });
+
+
+        Schema::create('apps', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('icon');
+            $table->text('description')->nullable(true);
+            $table->integer('order')->nullable(true)->default(0);
+            $table->integer('user_id');
+            $table->timestamps();
+        });
+        //应用授权部门
+        Schema::create('apps_auth_departments', function (Blueprint $table) {
+            $table->integer('apps_id');
+            $table->integer('department_id');
+            $table->timestamps();
+        });
+        //应用授权用户
+        Schema::create('apps_auth_users', function (Blueprint $table) {
+            $table->integer('apps_id');
             $table->integer('user_id');
             $table->timestamps();
         });
@@ -80,9 +122,13 @@ class Bpm extends Migration
         Schema::dropIfExists('forms');
         Schema::dropIfExists('form_components');
         Schema::dropIfExists('form_events');
-        Schema::dropIfExists('form_roles');
-        Schema::dropIfExists('form_role_users');
-        Schema::dropIfExists('form_departments');
-        Schema::dropIfExists('form_department_users');
+        Schema::dropIfExists('form_auth_departments');
+        Schema::dropIfExists('form_auth_users');
+        Schema::dropIfExists('departments');
+        Schema::dropIfExists('department_users');
+        Schema::dropIfExists('form_tables');
+        Schema::dropIfExists('apps_auth_departments');
+        Schema::dropIfExists('apps_auth_users');
+        Schema::dropIfExists('apps');
     }
 }

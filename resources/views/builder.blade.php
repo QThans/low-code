@@ -40,9 +40,21 @@
   .formio-component-tabs .nav-tabs {
     border-bottom: 1px solid #ddd;
     background-color: #f5f5f5;
+    width: 100%;
+  }
+
+  .formio-dialog.formio-dialog-theme-default .formio-dialog-close:before {
+    padding: 0;
+    line-height: 20px;
   }
 
   .component-edit-container .pull-right {
     display: none;
+  }
+
+  .btn-group-xxs>.btn,
+  .btn-xxs,
+  .component-btn-group .component-settings-button {
+    padding: 2px !important;
   }
 </style>

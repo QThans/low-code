@@ -66,12 +66,11 @@ class DepartmentController extends AdminController
         return Form::make(new Department(), function (Form $form) {
 
             $form->display('id', 'ID');
-            $id = $form->getKey();
-            $form->select('parent_id', '父级部门')->default('0')->options(function () use ($id) {
-                $deparments = ModelsDepartment::where('id', '!=', $id)->pluck('name', 'id')->toArray();
-                return $deparments;
+            $form->select('parent_id', '父级部门')->default('0')->options(function () {
+                return ModelsDepartment::selectOptions();
+            })->saving(function ($v) {
+                return (int) $v;
             });
-
             $form->text('name', '部门名称')->required();
 
             $form->number('order', '排序');
