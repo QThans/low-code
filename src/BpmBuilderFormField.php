@@ -6,6 +6,7 @@ use Dcat\Admin\Form\Field;
 
 class BpmBuilderFormField extends Field
 {
+
     protected $view = 'bpm::builder';
 
     protected static $css = [
@@ -29,12 +30,12 @@ class BpmBuilderFormField extends Field
         } else {
             $this->value = json_encode(json_decode($this->value));   //兼容json里有类似</p>格式，首次初始化显示会丢失的问题
         }
-        $alias = 'form_' . uniqid();
+        $builderId =  'form_' . md5($this->id);
         $name = $this->getElementName();
         $this->script .= <<<EOT
 
 Formio.icons = "fontawesome"
-var {$alias} = Formio.builder(document.getElementById('{$this->id}'), {}, {
+var {$builderId} = Formio.builder(document.getElementById('{$this->id}'), {}, {
   language: 'zh-CN',
   noDefaultSubmitButton: true,
   i18n: cn,
@@ -45,7 +46,7 @@ var {$alias} = Formio.builder(document.getElementById('{$this->id}'), {}, {
 });
 
 $('button[type="reset"]').click(function(){
-    {$alias}.form = {};
+    {$builderId}.form = {};
 });
 EOT;
         return parent::render();

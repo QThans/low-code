@@ -31,14 +31,13 @@ class DepartmentController extends AdminController
         }
         $grid->id('ID')->bold()->sortable();
         $grid->name->tree(true); // 开启树状表格功能 
-        $grid->order->orderable();
         $grid->order;
-
+        $grid->model()->orderBy('order');
+        $grid->order->orderable();
         if (!$mini) {
             $grid->created_at;
             $grid->updated_at->sortable();
         }
-
         $grid->disableBatchDelete();
         $grid->disableEditButton();
         $grid->showQuickEditButton();

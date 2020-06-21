@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Overtrue\LaravelVersionable\Versionable;
 use Spatie\EloquentSortable\Sortable;
 
-class FormAuthUser extends Model
+class FormDepartment extends Model
 {
-    use HasDateTimeFormatter,Versionable;
+    use HasDateTimeFormatter, Versionable;
+    protected $fillable = ['department_id', 'actions'];
     /**
      * 动作权限
      */

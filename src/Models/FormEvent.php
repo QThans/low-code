@@ -9,6 +9,8 @@ use Overtrue\LaravelVersionable\Versionable;
 class FormEvent extends Model
 {
     use HasDateTimeFormatter, Versionable;
+
+    protected $fillable = ['type', 'name', 'event'];
     /**
      * 表单数据事件
      * 事件内容：PHP代码
