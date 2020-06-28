@@ -28,4 +28,24 @@ class Apps extends Model implements Sortable
     {
         return $this->belongsToMany(Administrator::class, 'apps_users', 'apps_id', 'user_id')->withTimestamps();
     }
+    public static function getByDepartments($departments)
+    {
+        return self::with('departments')->whereHas('departments', function ($query) use ($departments) {
+            return $query->whereIn('department_id', $departments);
+        })->get();
+    }
+    public static function getByUserIds($userId)
+    {
+        return self::with('users')->whereHas('users', function ($query) use ($userId) {
+            return $query->whereIn('user_id', $userId);
+        })->get();
+    }
+    public static function getByUserId($userId)
+    {
+        return self::getByUserIds([$userId]);
+    }
+    public static function getByNoDepartment()
+    {
+        return  self::with('departments')->whereDoesntHave('departments')->get();
+    }
 }

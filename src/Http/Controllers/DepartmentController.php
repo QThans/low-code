@@ -8,7 +8,9 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\IFrameGrid;
 use Thans\Bpm\Models\Repositories\Department;
 use Dcat\Admin\Show;
+use Thans\Bpm\Grid\Actions\Row\DepartmentUser;
 use Thans\Bpm\Models\Department as ModelsDepartment;
+use Thans\Bpm\Models\DepartmentUsers;
 
 class DepartmentController extends AdminController
 {
@@ -29,9 +31,14 @@ class DepartmentController extends AdminController
         } else {
             $grid = new Grid(new Department());
         }
+        $total = ModelsDepartment::childrenIds();
+        $grid->setActionClass(\Dcat\Admin\Grid\Displayers\Actions::class);
+        // $grid->model()->withCount('users');
         $grid->id('ID')->bold()->sortable();
-        $grid->name->tree(true); // 开启树状表格功能 
-        $grid->order;
+        $grid->name->tree(); // 开启树状表格功能 
+        $grid->users_count('下属员工数量')->display(function () use ($total, $grid) {
+            return DepartmentUsers::whereIn('department_id', $total[$this->id])->count();
+        });
         $grid->model()->orderBy('order');
         $grid->order->orderable();
         if (!$mini) {
@@ -44,6 +51,7 @@ class DepartmentController extends AdminController
         $grid->disableFilterButton();
         $grid->quickSearch(['id', 'name']);
         $grid->enableDialogCreate();
+        $grid->actions(new DepartmentUser());
         return $grid;
     }
 

@@ -12,6 +12,8 @@ use Spatie\EloquentSortable\SortableTrait;
 class Form extends Model  implements Sortable
 {
     use HasDateTimeFormatter, Versionable, SortableTrait;
+
+
     protected $sortable = [
         // 设置排序字段名称
         'order_column_name' => 'order',
@@ -64,5 +66,10 @@ class Form extends Model  implements Sortable
     public function components()
     {
         return $this->hasOne(FormComponents::class);
+    }
+
+    public static function getByNoAuth($appsId)
+    {
+        return self::with(['users', 'departments'])->where('apps_id', $appsId)->whereDoesntHave('departments')->whereDoesntHave('users')->get();
     }
 }

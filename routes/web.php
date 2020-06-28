@@ -12,6 +12,8 @@ Route::group([
         Route::get('auth/department/actions', 'FormBuilderController@formDepartmentActions')->name('bpm.formDepartmentActions');
         Route::get('auth/user/actions', 'FormBuilderController@formUserActions')->name('bpm.formUserActions');
     });
+    Route::resource('department/user', 'DepartmentUserController');
     Route::resource('department', 'DepartmentController');
     Route::resource('apps', 'AppsController');
+    Route::resource('/{id}/form', 'BpmController');
 });

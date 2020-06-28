@@ -10,6 +10,7 @@ use Spatie\EloquentSortable\Sortable;
 class FormUser extends Model
 {
     use HasDateTimeFormatter, Versionable;
+    public $incrementing = true;
     protected $fillable = ['user_id', 'actions'];
     /**
      * 动作权限

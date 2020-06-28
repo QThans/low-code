@@ -57,10 +57,13 @@ class BpmRenderFormField extends Field
 Formio.icons = "fontawesome"
 var {$alias} = Formio.createForm(document.getElementById('{$this->id}'), {$components}, {
   language: 'zh-CN',
+  name:'data',
   noDefaultSubmitButton: true,
   i18n: cn,
 }).then(function (form) {
-    
+    form.submission = {
+        data: {$this->value}
+      };
 });
 $('button[type="reset"]').click(function(){
     {$alias}.form = {};

@@ -35,7 +35,7 @@ class BpmBuilderFormField extends Field
         $this->script .= <<<EOT
 
 Formio.icons = "fontawesome"
-var {$builderId} = Formio.builder(document.getElementById('{$this->id}'), {}, {
+var {$builderId} = Formio.builder(document.getElementById('{$this->id}'), {$this->value}, {
   language: 'zh-CN',
   noDefaultSubmitButton: true,
   i18n: cn,

@@ -5,6 +5,8 @@ namespace Thans\Bpm;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Illuminate\Support\ServiceProvider;
+use Thans\Bpm\Models\FormSubmission;
+use Thans\Bpm\Observers\FormSubmissionObserver;
 
 class BpmServiceProvider extends ServiceProvider
 {
@@ -43,6 +45,13 @@ class BpmServiceProvider extends ServiceProvider
             // Admin::js('vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.css');
             Form::extend('bpmFormBuilder', BpmBuilderFormField::class);
             Form::extend('bpmFormRender', BpmRenderFormField::class);
+            if (Admin::user()) {
+                Bpm::loadApps();
+            }
+            FormSubmission::observe(FormSubmissionObserver::class);
+            Admin::script(<<<EOD
+            $('.main-footer').remove();
+EOD);
         });
         // $this->registerPublishing();
     }

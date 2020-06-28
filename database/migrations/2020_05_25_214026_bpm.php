@@ -36,6 +36,7 @@ class Bpm extends Migration
             $table->string('form_alias');
             $table->jsonb('submission');
             $table->integer('user_id');
+            $table->integer('updated_user_id');
             $table->text('header');
             $table->timestamps();
         });
@@ -90,6 +91,7 @@ class Bpm extends Migration
         });
         //用户所属部门
         Schema::create('department_users', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('department_id');
             $table->integer('user_id');
             $table->timestamps();
@@ -106,6 +108,7 @@ class Bpm extends Migration
         });
         //应用授权部门
         Schema::create('apps_departments', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('apps_id');
             $table->integer('department_id');
             $table->index(['apps_id', 'department_id']);
@@ -113,6 +116,7 @@ class Bpm extends Migration
         });
         //应用授权用户
         Schema::create('apps_users', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('apps_id');
             $table->integer('user_id');
             $table->index(['apps_id', 'user_id']);
