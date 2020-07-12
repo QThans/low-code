@@ -15,7 +15,6 @@ class FormSubmissionObserver
      */
     public function creating(FormSubmission $formSubmission)
     {
-        $formSubmission->form_id = Request::route()->parameters['id'];
     }
     /**
      * 处理 FormSubmission「created」事件

@@ -7,13 +7,9 @@ use Dcat\Admin\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Form\NestedForm;
 use Dcat\Admin\Grid;
-use Dcat\Admin\Models\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as FacadesRequest;
-use Thans\Bpm\Grid\Actions\Row\FormBuilder\EditButton;
 use Thans\Bpm\Models\Apps;
-use Thans\Bpm\Models\Department;
-use Thans\Bpm\Models\Form as ModelsForm;
 use Thans\Bpm\Models\FormEvent;
 use Thans\Bpm\Models\Repositories\Form as RepositoriesForm;
 
@@ -54,20 +50,21 @@ class FormBuilderController extends AdminController
             $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=baseInfo"><i class="fa fa-edit"></i> 基本信息</a>');
             $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=formDesign"><i class="fa fa-edit"></i> 表单设计</a>');
             $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=events"><i class="fa fa-edit"></i> 事件配置</a>');
-            $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=auths"><i class="fa fa-edit"></i> 表单权限</a>');
+            // $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=auths"><i class="fa fa-edit"></i> 表单权限</a>');
             $actions->append('<a href="/admin/bpm/form/builder/' . $actions->row->id . '/edit?type=tables"><i class="fa fa-edit"></i> 数据表格</a>');
         });
         return $grid;
     }
     public function form()
     {
-        return Form::make(new RepositoriesForm(['apps', 'departments', 'users', 'events', 'components', 'tables']), function ($form) {
+        return Form::make(new RepositoriesForm(['apps', 'events', 'components', 'tables']), function ($form) {
             // 判断是否是编辑页面
             Admin::style(<<<CSS
             .order{
                 width:70px !important;
             }
 CSS);
+            $form->disableViewButton();
             $form->saving(function (Form $form) {
                 $type = FacadesRequest::input('type', 'baseInfo');
                 $form->type = 0;
@@ -75,8 +72,20 @@ CSS);
                 if (!$form->isEditing() || $type == 'baseInfo') {
                     $form->user_id = Admin::guard()->id();
                 }
+                if (!$form->isEditing() || $type == 'formDesign') {
+                    $form->saving(function (Form $form) {
+                        // CREATE UNIQUE INDEX submission_document_id_index_unique ON public.form_submissions USING btree (((submission -> 'documentId'::text)
+                        //TODO：索引创建或删除，unique or index
+                    });
+                }
                 if (!$form->isEditing() || $type == 'tables') {
-                    $form->tables = ['code' => $form->code ?? '', 'fields' => $form->fields ? array_values($form->fields) : '[]', 'filters' => $form->filters ? array_values($form->filters) : '[]'];
+                    $fields = $form->fields ? collect(array_values($form->fields))->filter(function ($value) {
+                        return $value['_remove_'] == 1 ? false : true;
+                    }) : '[]';
+                    $filters = $form->filters ? collect(array_values($form->filters))->filter(function ($value) {
+                        return $value['_remove_'] == 1 ? false : true;
+                    }) : '[]';
+                    $form->tables = ['code' => $form->code ?? '', 'fields' => $fields, 'filters' => $filters];
                     $form->deleteInput('code');
                     $form->deleteInput('fields');
                     $form->deleteInput('filters');
@@ -100,14 +109,13 @@ CSS);
                 ->add('事件配置', function (Form\StepForm $step) {
                     $this->events($step);
                 })
-                ->add('表单权限', function (Form\StepForm $step) use ($form) {
-                    $this->auths($step);
-                })
                 ->add('数据表格', function (Form\StepForm $step) {
                     $this->tables($step);
                 })
                 ->done(function () use ($form) {
                     $resource = $form->getResource(0);
+                    //添加到菜单、权限配置项
+
                     $data = [
                         'title'       => '操作成功',
                         'description' => '表单：' . $form->name . '，创建成功',
@@ -126,6 +134,12 @@ CSS);
         if ($isEditing) {
             $alias->disable();
         }
+        $alias->rules(function ($form) {
+            // 如果不是编辑状态，则添加字段唯一验证
+            if (!$id = $form->model()->id) {
+                return 'unique:forms,alias';
+            }
+        });
         $form->select('apps_id', '所属应用')->options(Apps::all()->pluck('name', 'id'))->required(true);
         $form->textarea('description', '描述');
     }
@@ -161,49 +175,7 @@ JS);
             $table->textarea('event', '事件代码');
         })->useTable();
     }
-    public function auths($form, $isEditing = false)
-    {
-        $form->hasMany('departments', '部门授权', function (NestedForm $table) {
-            $table->multipleSelect('department_id', '部门选择')->options(Department::selectOptions());
-            $table->multipleSelect('actions', '事件名称')->options(ModelsForm::DEPARTMENT_ACTIONS)->help('为空默认为所有');
-        })->useTable()->saving(function ($value) {
-            $depatment = [];
-            foreach ($value as $key => $val) {
-                if (!isset($val['department_id'])) {
-                    continue;
-                }
-                foreach ($val['department_id'] as $k => $v) {
-                    $depatment[] = [
-                        'department_id' => $v,
-                        'actions' => isset($val['actions']) ? implode(',', $val['actions']) : '*',
-                        'id' => $val['id'],
-                        '_remove_' => $val['_remove_'],
-                    ];
-                }
-            }
-            return $depatment;
-        });
-        $form->hasMany('users', '用户授权', function (NestedForm $table) {
-            $table->multipleSelect('user_id', '用户选择')->options(Administrator::all()->pluck('name', 'id')->toArray());
-            $table->multipleSelect('actions', '事件名称')->options(ModelsForm::DEPARTMENT_ACTIONS)->help('为空默认为所有');
-        })->useTable()->saving(function ($value) {
-            $users = [];
-            foreach ($value as $key => $val) {
-                if (!isset($val['user_id'])) {
-                    continue;
-                }
-                foreach ($val['user_id'] as $k => $v) {
-                    $users[] = [
-                        'user_id' => $v,
-                        'actions' => isset($val['actions']) ? implode(',', $val['actions']) : '*',
-                        'id' => $val['id'],
-                        '_remove_' => $val['_remove_'],
-                    ];
-                }
-            }
-            return $users;
-        });
-    }
+
     public function tables($form, $isEditing = false)
     {
         $fields = $form->table('fields', '数据表格', function (NestedForm $table) {

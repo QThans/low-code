@@ -5,13 +5,14 @@ namespace Thans\Bpm\Models;
 use Dcat\Admin\Models\Administrator;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Overtrue\LaravelVersionable\Versionable;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 
 class Apps extends Model implements Sortable
 {
-    use SortableTrait, Versionable, HasDateTimeFormatter;
+    use SortableTrait, Versionable, HasDateTimeFormatter, SoftDeletes;
     protected $table = 'apps';
 
     protected $sortable = [

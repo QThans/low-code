@@ -13,13 +13,22 @@ class BpmRenderFormField extends Field
      */
     protected $components;
 
+    protected $showMode = false;
+
     protected static $css = [
-        'vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.css'
+        'vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.css',
+        'vendors/dcat-admin-extensions/bpm/css/formio.custom.css'
     ];
     protected static $js = [
         'vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.js',
         'vendors/dcat-admin-extensions/bpm/formio.js/language/zh-CN.js'
     ];
+
+    public function showMode($showMode = false)
+    {
+        $this->showMode = $showMode;
+        return $this;
+    }
 
     public function components($components =  null)
     {
@@ -50,23 +59,46 @@ class BpmRenderFormField extends Field
         } else {
             $this->value = json_encode(json_decode($this->value));   //兼容json里有类似</p>格式，首次初始化显示会丢失的问题
         }
-        $alias = 'builder_' . uniqid();
         $components = $this->components;
+        $showMode = $this->showMode ? 'readOnly: true,' : '';
+        $url = str_replace('/form', '', route('bpm.baseurl'));
         $this->script .= <<<EOT
+var submitForm;
+var bpmForm = function(form) {
+  form.on('change', function(event){
+  });
+  if({$this->value}.length != 0){
+    form.submission = {
+        data: {$this->value}
+    };
+  }
+  submitForm = form;
+};
 
 Formio.icons = "fontawesome"
-var {$alias} = Formio.createForm(document.getElementById('{$this->id}'), {$components}, {
+var bpmFormBuilder = Formio.createForm(document.getElementById('{$this->id}'), {$components}, {
   language: 'zh-CN',
   name:'data',
   noDefaultSubmitButton: true,
   i18n: cn,
-}).then(function (form) {
-    form.submission = {
-        data: {$this->value}
-      };
+  baseUrl: '{$url}',
+  {$showMode}
+}).then(bpmForm);
+
+var \$form = \$('#{$this->getFormElementId()}');
+\$form.find('.submit').off('click');
+\$form.on('submit',function(){
+    submitForm.submitForm().then(function(v){
+        Dcat.Form({
+            form: \$('#{$this->getFormElementId()}'),
+        });
+    }).catch(function(e) {
+    })
+    return false;
 });
 $('button[type="reset"]').click(function(){
-    {$alias}.form = {};
+    submitForm.submission = {};
+    submitForm.triggerRedraw();
 });
 EOT;
         return parent::render();

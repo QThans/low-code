@@ -65,32 +65,44 @@ class Bpm extends Extension
         return Apps::getByUserId(Admin::user()->id)->toArray();
     }
 
-    public static function loadApps()
-    {
-        $apps = Bpm::getAppsByDepartmentsAuth() + Bpm::getAppsByUsersAuth();
-        $forms = [];
-        $menus = collect($apps)->sortBy('order')->map(function ($value, $key) use (&$forms) {
-            $value['title'] = $value['name'];
-            $value['uri'] = '';
-            $value['parent_id'] = 0;
-            $forms = array_merge(Form::getByNoAuth($value['id'])->map(function ($val) use ($value) {
-                return [
-                    'id' => 'f' . $val['id'],
-                    'parent_id' => $value['id'],
-                    'title' => $val['name'],
-                    'icon' => '',
-                    'uri' => action([BpmController::class, 'index'], ['id' => $val['id']]),
-                ];
-            })->toArray(), $forms);
-            return $value;
-        })->toArray();
-        $menus = array_merge(collect($forms)->sortBy('order')->toArray(), $menus);
-        Admin::menu(function (Menu $menu) use ($menus) {
-            $menu->add($menus);
-        });
-    }
+    // public static function loadApps()
+    // {
+    //     $apps = Bpm::getAppsByDepartmentsAuth() + Bpm::getAppsByUsersAuth();
+    //     $forms = [];
+    //     $menus = collect($apps)->sortBy('order')->map(function ($value, $key) use (&$forms) {
+    //         $value['title'] = $value['name'];
+    //         $value['uri'] = '';
+    //         $value['parent_id'] = 0;
+    //         $forms = array_merge(Form::getByNoAuth($value['id'])->map(function ($val) use ($value) {
+    //             return [
+    //                 'id' => 'f' . $val['id'],
+    //                 'parent_id' => $value['id'],
+    //                 'title' => $val['name'],
+    //                 'icon' => '',
+    //                 'uri' => action([BpmController::class, 'index'], ['id' => $val['id']]),
+    //             ];
+    //         })->toArray(), $forms);
+    //         return $value;
+    //     })->toArray();
+    //     $menus = array_merge(collect($forms)->sortBy('order')->toArray(), $menus);
+    //     Admin::menu(function (Menu $menu) use ($menus) {
+    //         $menu->add($menus);
+    //     });
+    // }
     public static function myDepartments()
     {
         return Department::getByUserId(Admin::user()->id);
+    }
+    public static function getCities()
+    {
+        return json_decode(file_get_contents(__DIR__ . '/../data/cities.json'), true);
+    }
+    public static function getProvinces()
+    {
+        return json_decode(file_get_contents(__DIR__ . '/../data/provinces.json'), true);
+    }
+    public static function getAreas()
+    {
+        return json_decode(file_get_contents(__DIR__ . '/../data/areas.json'), true);
     }
 }

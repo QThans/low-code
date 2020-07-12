@@ -4,12 +4,13 @@ namespace Thans\Bpm\Models;
 
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Overtrue\LaravelVersionable\Versionable;
 
 class FormEvent extends Model
 {
-    use HasDateTimeFormatter, Versionable;
-    
+    use HasDateTimeFormatter, Versionable, SoftDeletes;
+
     protected $fillable = ['type', 'name', 'event'];
     /**
      * 表单数据事件

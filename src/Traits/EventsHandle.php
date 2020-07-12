@@ -7,7 +7,7 @@ trait EventsHandle
     protected $events;
     public function eventsInit()
     {
-        $this->events = $this->selfModel()->with('events');
+        // $this->events = $this->selfModel()->with('events');
     }
 
     //数据事件：新增前

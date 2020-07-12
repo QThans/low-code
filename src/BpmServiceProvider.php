@@ -7,6 +7,14 @@ use Dcat\Admin\Form;
 use Illuminate\Support\ServiceProvider;
 use Thans\Bpm\Models\FormSubmission;
 use Thans\Bpm\Observers\FormSubmissionObserver;
+use Dcat\Admin\Show\Field;
+use Illuminate\Support\Facades\Route;
+use Thans\Bpm\Http\Controllers\CityDataController;
+use Thans\Bpm\Http\Controllers\FormController;
+use Thans\Bpm\Models\Apps;
+use Thans\Bpm\Observers\AppsObserver;
+use Thans\Bpm\Models\Form as ModelForm;
+use Thans\Bpm\Observers\FormsObserver;
 
 class BpmServiceProvider extends ServiceProvider
 {
@@ -45,10 +53,10 @@ class BpmServiceProvider extends ServiceProvider
             // Admin::js('vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.css');
             Form::extend('bpmFormBuilder', BpmBuilderFormField::class);
             Form::extend('bpmFormRender', BpmRenderFormField::class);
-            if (Admin::user()) {
-                Bpm::loadApps();
-            }
+            Field::extend('bpmFormShow', FormFieldShow::class);
             FormSubmission::observe(FormSubmissionObserver::class);
+            Apps::observe(AppsObserver::class);
+            ModelForm::observe(FormsObserver::class);
             Admin::script(<<<EOD
             $('.main-footer').remove();
 EOD);
@@ -63,6 +71,9 @@ EOD);
      */
     public function register()
     {
+        Route::get('/admin/bpm/cityData/province', [CityDataController::class, 'province']);
+        Route::get('/admin/bpm/cityData/city', [CityDataController::class, 'city']);
+        Route::get('/admin/bpm/cityData/area', [CityDataController::class, 'area']);
         $this->commands($this->commands);
     }
     protected function publishResource()
