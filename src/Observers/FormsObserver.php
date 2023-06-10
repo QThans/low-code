@@ -27,7 +27,7 @@ class FormsObserver
      */
     public function created(Form $form)
     {
-        $this->createMenu($form);
+        $this->createMenuAndPermission($form);
     }
 
     /**
@@ -38,14 +38,40 @@ class FormsObserver
      */
     public function updated(Form $form)
     {
-        if ($form->getOriginal('apps_id') != $form->apps_id) {
-            $this->deleteMenu($form);
-            $this->createMenu($form);
-        } else {
-            if (!$form->menu_id) {
-                $this->createMenu($form);
-            }
+
+        if (!$form->menu_id) {
+            $this->createMenuAndPermission($form);
+        } elseif ($form->getOriginal('apps_id') != $form->apps_id) {
+            //TODO Permission和menu的关系，重新添加，旧有删除
+            //更新菜单和权限父级关系
+            $menu = Menu::where('id', $form->menu_id)->first();
+            $apps = Apps::where('id', $form->apps_id)->first();
+            $menu->parent_id = $apps->menu_id;
+            $menu->save();
+            $permission = Permission::where('slug', 'form_' . $form->id)->first();
+            $parentPermission = Permission::where('slug', 'apps_' . $apps->id)->first();
+            $permission->parent_id =  $parentPermission->id;
+            $permission->save();
         }
+        if ($form->getOriginal('name') != $form->name) {
+            Permission::where('slug', 'form_' . $form->id)
+                ->update(['name' => $form->name]);
+            Menu::where('id', $form->menu_id)->update(['title' => $form->name]);
+        }
+    }
+
+    protected function getPermissionSlug($id)
+    {
+        return [
+            'form_index_' . $id,
+            'form_view_' . $id,
+            'form_' . $id,
+            'form_create_' . $id,
+            'form_save_' . $id,
+            'form_edit_' . $id,
+            'form_put_' . $id,
+            'form_delete_' . $id
+        ];
     }
 
     /**
@@ -56,7 +82,7 @@ class FormsObserver
      */
     public function deleted(Form $form)
     {
-        $this->deleteMenu($form);
+        $this->deleteMenuAndPermission($form);
     }
 
     /**
@@ -67,16 +93,16 @@ class FormsObserver
      */
     public function forceDeleted(Form $form)
     {
-        $this->deleteMenu($form);
+        $this->deleteMenuAndPermission($form);
     }
 
-    protected function deleteMenu(Form $form)
+    protected function deleteMenuAndPermission(Form $form)
     {
-        Permission::whereIn('slug', ['form_index_' . $form->id, 'form_create_' . $form->id, 'form_save_' . $form->id, 'form_edit_' . $form->id, 'form_put_' . $form->id, 'form_delete_' . $form->id])->delete();
+        Permission::whereIn('slug', $this->getPermissionSlug($form->id))->delete();
         Menu::where('id', $form->menu_id)->delete();
     }
 
-    protected function createMenu(Form $form)
+    protected function createMenuAndPermission(Form $form)
     {
         $apps = Apps::where('id', $form->apps_id)->first();
         $appsPermission = Permission::where('slug', 'apps_' . $form->apps_id)->first();
@@ -86,57 +112,68 @@ class FormsObserver
             'icon'          => $form->icon,
             'uri'           => 'bpm/' . $form->alias . '/form',
         ]);
-        $permission = $menu->permissions()->create([
-            'name' => $form->name . '-列表',
-            'slug' => 'form_index_' . $form->id,
-            'http_method' => 'GET',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form',
-        ]);
-        $permission->parent_id = $appsPermission->id;
-        $permission->save();
+        $permission = new Permission();
+        $permission->forceFill([
+            'name' => $form->name,
+            'slug' => 'form_' . $form->id,
+            'http_method' => '',
+            'http_path'   => '',
+            'parent_id'   => $appsPermission->id
+        ])->save();
         $permissions = [];
-        $createdAt = date('Y-m-d H:i:s');
         $permissions[] = [
-            'name' => $form->name . '-创建',
+            'name' => '列表',
+            'slug' => 'form_index_' . $form->id,
+            'http_method' => ['GET'],
+            'http_path'   => '/bpm/' . $form->alias . '/form',
+        ];
+        $permissions[] = [
+            'name' => '查看',
+            'slug' => 'form_view_' . $form->id,
+            'http_method' => ['GET'],
+            'http_path'   => '/bpm/' . $form->alias . '/form/*',
+        ];
+        $permissions[] = [
+            'name' => '新增页面',
             'slug' => 'form_create_' . $form->id,
-            'http_method' => 'GET',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form/create',
-            'parent_id'   => $appsPermission->id,
-            'created_at'  => $createdAt
+            'http_method' => ['GET'],
+            'http_path'   => '/bpm/' . $form->alias . '/form/create',
         ];
         $permissions[] = [
-            'name' => $form->name . '-新增',
+            'name' => '提交新增',
             'slug' => 'form_save_' . $form->id,
-            'http_method' => 'POST',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form',
-            'parent_id'   => $appsPermission->id,
-            'created_at'  => $createdAt
+            'http_method' => ['POST'],
+            'http_path'   => '/bpm/' . $form->alias . '/form',
         ];
         $permissions[] = [
-            'name' => $form->name . '-编辑',
+            'name' => '编辑页面',
             'slug' => 'form_edit_' . $form->id,
-            'http_method' => 'GET',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form/*/edit',
-            'parent_id'   => $appsPermission->id,
-            'created_at'  => $createdAt
+            'http_method' => ['GET'],
+            'http_path'   => '/bpm/' . $form->alias . '/form/*/edit',
         ];
         $permissions[] = [
-            'name' => $form->name . '-更新',
+            'name' => '提交编辑',
             'slug' => 'form_put_' . $form->id,
-            'http_method' => 'PUT',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form/*',
-            'parent_id'   => $appsPermission->id,
-            'created_at'  => $createdAt
+            'http_method' => ['PUT'],
+            'http_path'   => '/bpm/' . $form->alias . '/form/*',
         ];
         $permissions[] = [
-            'name' => $form->name . '-删除',
+            'name' => '删除',
             'slug' => 'form_delete_' . $form->id,
-            'http_method' => 'DELETE',
-            'http_path'   => 'admin/bpm/' . $form->alias . '/form/*',
-            'parent_id'   => $appsPermission->id,
-            'created_at'  => $createdAt
+            'http_method' => ['DELETE'],
+            'http_path'   => '/bpm/' . $form->alias . '/form/*',
         ];
-        Permission::insert($permissions);
+        $permissions = $menu->permissions()->createMany($permissions);
+        $parentPermissionMenu = [];
+        foreach ($permissions as $key => $value) {
+            $value->parent_id = $permission->id;
+            $value->save();
+            $parentPermissionMenu[] = [
+                'permission_id' => $value->id,
+                'menu_id' => $apps->menu_id,
+            ];
+        }        
+        DB::table(config('admin.database.permission_menu_table'))->insert($parentPermissionMenu);
         DB::select('SELECT nextval(\'"admin_permissions_id_seq"\'::regclass)');
         DB::select('SELECT setval(\'"admin_permissions_id_seq"\', (SELECT MAX(id) FROM "admin_permissions")+1);');
         DB::table('forms')->where('id', $form->id)->update(['menu_id' => $menu->id]);

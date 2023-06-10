@@ -34,7 +34,6 @@ class FormSubmissionObserver
      */
     public function updated(FormSubmission $formSubmission)
     {
-        //
     }
 
     /**

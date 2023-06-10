@@ -1,6 +1,6 @@
 <?php
 
-namespace Thans\Bpm;
+namespace Thans\Bpm\Helpers;
 
 use Illuminate\Support\Facades\Redis;
 

@@ -12,6 +12,14 @@ class User extends Administrator
 {
     use HasDateTimeFormatter, Versionable;
 
+    const STATUS = [
+        0 => '正常',
+        1 => '封禁',
+    ];
+
+    // 设置排序字段，默认order
+    protected $orderColumn = 'updated_at';
+
     protected $table = 'admin_users';
 
     protected $appends = ['submission'];
@@ -21,6 +29,11 @@ class User extends Administrator
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'department_users', 'user_id', 'department_id')->withPivot('updated_at')->withTimestamps();
+    }
+
+    public function dingtalk()
+    {
+        return $this->hasOne(UserPlatformAuth::class);
     }
 
     public function getSubmissionAttribute()

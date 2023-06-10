@@ -11,8 +11,9 @@ class FormTable extends Model
 {
     use HasDateTimeFormatter, Versionable, SoftDeletes;
     protected $casts = [
-        'fields' => 'json',
-        'filters' => 'json',
+        'fields' => 'array',
+        'filters' => 'array',
+        'title' => 'array',
     ];
     protected $fillable = ['fields', 'filters', 'code'];
 }

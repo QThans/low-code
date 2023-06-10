@@ -35,7 +35,7 @@ class DepartmentController extends AdminController
         $grid->setActionClass(\Dcat\Admin\Grid\Displayers\Actions::class);
         // $grid->model()->withCount('users');
         $grid->id('ID')->bold()->sortable();
-        $grid->name->tree(); // 开启树状表格功能 
+        $grid->name->tree(); // 开启树状表格功能
         $grid->users_count('下属员工数量')->display(function () use ($total, $grid) {
             return DepartmentUsers::whereIn('department_id', $total[$this->id])->count();
         });
@@ -45,6 +45,8 @@ class DepartmentController extends AdminController
             $grid->created_at;
             $grid->updated_at->sortable();
         }
+        $grid->withBorder();
+        $grid->fixColumns(2, -1);
         $grid->disableBatchDelete();
         $grid->disableEditButton();
         $grid->showQuickEditButton();
@@ -60,7 +62,7 @@ class DepartmentController extends AdminController
         $model = ModelsDepartment::with('parent');
         return Show::make($id, $model, function (Show $show) {
             $show->id;
-            $show->field('parent.name', '上级部门');
+            $show->field('parent.name', '父级部门');
             $show->name('部门名称');
             $show->order;
             $show->created_at;
@@ -78,6 +80,7 @@ class DepartmentController extends AdminController
             })->saving(function ($v) {
                 return (int) $v;
             });
+
             $form->text('name', '部门名称')->required();
 
             $form->number('order', '排序');

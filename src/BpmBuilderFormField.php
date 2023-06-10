@@ -10,12 +10,13 @@ class BpmBuilderFormField extends Field
     protected $view = 'bpm::builder';
 
     protected static $css = [
-        'vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.css',
-        'vendors/dcat-admin-extensions/bpm/css/formio.custom.css'
+        'vendors/bpm/formio.js/formio.full.min.css',
+        'vendors/bpm/css/formio.custom.css'
     ];
     protected static $js = [
-        'vendors/dcat-admin-extensions/bpm/formio.js/formio.full.min.js',
-        'vendors/dcat-admin-extensions/bpm/formio.js/language/zh-CN.js'
+        'vendors/bpm/formio.js/formio.full.min.js',
+        'vendors/bpm/formio.js/language/zh-CN.js',
+        'vendors/bpm/formio.js/language/flatpickr/zh.js'
     ];
 
     public function render()
@@ -35,7 +36,6 @@ class BpmBuilderFormField extends Field
         $name = $this->getElementName();
         $url = str_replace('/form', '', route('bpm.baseurl'));
         $this->script .= <<<EOT
-
 Formio.icons = "fontawesome"
 var {$builderId} = Formio.builder(document.getElementById('{$this->id}'), {$this->value}, {
   language: 'zh-CN',
@@ -50,9 +50,8 @@ var {$builderId} = Formio.builder(document.getElementById('{$this->id}'), {$this
         $('.formio-component-tableView').hide();
         $('.formio-component-persistent').hide();
     });
-    console.log(form);
 });
-
+window.Formio = Formio;
 $('button[type="reset"]').click(function(){
     {$builderId}.form = {};
 });

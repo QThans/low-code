@@ -4,4 +4,4 @@
 
 use Dcat\Admin\Admin;
 
-Admin::extend(Thans\Bpm\Bpm::class);
+// Admin::extend(Thans\Bpm\Bpm::class);

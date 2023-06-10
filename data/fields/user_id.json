@@ -1,0 +1,112 @@
+{
+    "key": "____user_id",
+    "data": {
+      "values": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "datagrid": "main",
+      "resource": "users",
+      "json": "",
+      "url": "",
+      "custom": ""
+    },
+    "fill": [
+      {
+        "fillValue": "",
+        "fillComponent": ""
+      }
+    ],
+    "type": "select",
+    "input": true,
+    "label": "所属账号",
+    "widget": "choicesjs",
+    "dataSrc": "resource",
+    "disabled": false,
+    "template": "<span>{{ item.submission.username }}</span>",
+    "validate": {
+      "required": true,
+      "custom": "",
+      "customPrivate": false,
+      "strictDateValidation": false,
+      "multiple": false,
+      "unique": false
+    },
+    "indexeddb": {
+      "filter": []
+    },
+    "noEditing": false,
+    "reference": false,
+    "tableView": true,
+    "labelWidth": 10,
+    "canMultiple": false,
+    "clearOnHide": false,
+    "labelMargin": 2,
+    "placeholder": "",
+    "labelPosition": "left-left",
+    "labelProperty": "submission.username",
+    "valueProperty": "id",
+    "selectThreshold": 0.3,
+    "prefix": "",
+    "customClass": "",
+    "suffix": "",
+    "multiple": false,
+    "defaultValue": null,
+    "protected": false,
+    "unique": false,
+    "persistent": true,
+    "hidden": false,
+    "refreshOn": "",
+    "redrawOn": "",
+    "modalEdit": false,
+    "description": "",
+    "errorLabel": "",
+    "tooltip": "",
+    "hideLabel": false,
+    "tabindex": "",
+    "autofocus": false,
+    "dbIndex": false,
+    "customDefaultValue": "",
+    "calculateValue": "",
+    "calculateServer": false,
+    "attributes": {},
+    "validateOn": "change",
+    "conditional": {
+      "show": null,
+      "when": null,
+      "eq": ""
+    },
+    "overlay": {
+      "style": "",
+      "left": "",
+      "top": "",
+      "width": "",
+      "height": ""
+    },
+    "allowCalculateOverride": false,
+    "encrypted": false,
+    "showCharCount": false,
+    "showWordCount": false,
+    "properties": {},
+    "allowMultipleMasks": false,
+    "clearOnRefresh": false,
+    "limit": 100,
+    "lazyLoad": false,
+    "filter": "",
+    "searchEnabled": true,
+    "searchField": "__regexusername",
+    "minSearch": 0,
+    "readOnlyValue": false,
+    "authenticate": false,
+    "selectFields": "",
+    "searchThreshold": 0.3,
+    "uniqueOptions": false,
+    "fuseOptions": {
+      "include": "score",
+      "threshold": 0.3
+    },
+    "customOptions": {},
+    "id": "e5lsd4q6"
+  }

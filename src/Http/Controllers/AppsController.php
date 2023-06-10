@@ -12,6 +12,7 @@ use Dcat\Admin\Models\Menu;
 use Dcat\Admin\Models\Permission;
 use Thans\Bpm\Models\Repositories\Apps;
 use Dcat\Admin\Show;
+use Thans\Bpm\Models\Apps as ModelsApps;
 use Thans\Bpm\Models\Department;
 
 class AppsController extends AdminController
@@ -35,7 +36,7 @@ class AppsController extends AdminController
         }
         $grid->model()->orderBy('order');
         $grid->id('ID')->bold()->sortable();
-        $grid->name('应用名字');
+        $grid->name('应用名字')->tree();
         $grid->icon;
         $grid->description('描述');
         $grid->order->orderable();
@@ -49,6 +50,8 @@ class AppsController extends AdminController
         $grid->disableFilterButton();
         $grid->quickSearch(['id', 'name', 'icon', 'description']);
         $grid->enableDialogCreate();
+        $grid->withBorder();
+        $grid->fixColumns(2, -1);
         return $grid;
     }
 
@@ -56,7 +59,8 @@ class AppsController extends AdminController
     {
         return Show::make($id, new Apps(), function (Show $show) {
             $show->id;
-            $show->name('部门名称');
+            $show->field('parent.name', '父级应用');
+            $show->name('应用');
             $show->icon;
             $show->description('描述');
             $show->order;
@@ -70,16 +74,15 @@ class AppsController extends AdminController
         return Form::make(new Apps(), function (Form $form) {
             $form->display('id', 'ID');
             $form->hidden('user_id');
+            $form->select('parent_id', '父级应用')->default('0')->options(function () use ($form) {
+                return ModelsApps::selectOptions();
+            })->saving(function ($v) {
+                return (int) $v;
+            });
             $form->text('name', '应用名称')->required();
             $form->icon('icon', 'ICON')->required();
             $form->text('description', '描述');
             $form->number('order', '排序');
-            // $form->multipleSelect('departments', '部门选择')->options(Department::selectOptions())->help('为空默认为所有')->customFormat(function ($v) {
-            //     return array_column($v, 'id');
-            // });
-            // $form->multipleSelect('users', '用户选择')->options(Administrator::all()->pluck('name', 'id')->toArray())->help('为空默认为所有')->customFormat(function ($v) {
-            //     return array_column($v, 'id');
-            // });
             $form->display('created_at', trans('admin.created_at'));
             $form->display('updated_at', trans('admin.updated_at'));
             $form->saving(function (Form $form) {

@@ -10,6 +10,7 @@ class DepartmentUsers extends Model
 {
     use HasDateTimeFormatter, Versionable;
     public $incrementing = true;
+    protected $fillable = ['user_id','department_id'];
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

@@ -2,6 +2,7 @@
 
 namespace Thans\Bpm\Http\Controllers;
 
+use Dcat\Admin\Admin;
 use Dcat\Admin\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -54,6 +55,7 @@ class DepartmentUserController extends AdminController
         $grid->quickSearch(['id', 'name']);
         $grid->enableDialogCreate();
         $grid->showCreateButton();
+        $grid->disableEditButton();
         return $grid;
     }
 
@@ -71,7 +73,32 @@ class DepartmentUserController extends AdminController
             })->saving(function ($v) {
                 return (int) $v;
             })->required(true)->value($departmentId);
-            $form->select('user_id', '用户选择')->options(User::all()->pluck('name', 'id')->toArray());
+            if ($form->isEditing()) {
+                $form->select('user_id', '用户选择')->options(User::all()->pluck('username', 'id')->toArray());
+            } else {
+                $form->multipleSelect('user_id', '用户选择')->options(User::all()->pluck('username', 'id')->toArray());
+            }
+            // 判断是否是新增操作
+            $form->saving(function ($form) {
+                if ($form->isCreating()) {
+                    foreach (array_filter($form->user_id) as $key => $value) {
+                        $data = [
+                            'user_id' => $value,
+                            'department_id' => $form->department_id
+                        ];
+                        DepartmentUsers::firstOrCreate($data);
+                    }
+                    return $form->success('保存成功');
+                }
+                if ($form->isEditing()) {
+                    $data = [
+                        'user_id' => $form->user_id,
+                        'department_id' => $form->department_id
+                    ];
+                    DepartmentUsers::where('id', $form->model()->id)->update($data);
+                    return $form->success('保存成功');
+                }
+            });
             $form->display('created_at', trans('admin.created_at'));
             $form->display('updated_at', trans('admin.updated_at'));
         });

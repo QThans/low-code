@@ -41,6 +41,14 @@ class AppsObserver
         if (!$apps->menu_id) {
             $this->createMenu($apps);
         }
+        if ($apps->getOriginal('name') != $apps->name) {
+            Permission::whereIn('slug', 'apps_' . $apps->id)
+                ->update(['name' => $apps->name]);
+            Menu::where('id', $apps->menu_id)->update(['title' => $apps->name]);
+        }
+        if ($apps->getOriginal('icon') != $apps->icon) {
+            Menu::where('id', $apps->menu_id)->update(['icon' => $apps->icon]);
+        }
     }
 
     /**
@@ -74,19 +82,28 @@ class AppsObserver
 
     protected function createMenu(Apps $apps)
     {
+        $permissionsParentId = 0;
+        $menuParentId = 0;
+        if ($apps->parent_id) {
+            $parentApps = Apps::where('id', $apps->parent_id)->first();
+            $appsPermission = Permission::where('slug', 'apps_' . $parentApps->id)->first();
+            $permissionsParentId = $appsPermission->id;
+            $menuParentId = $parentApps->menu_id;
+        }
         $menu = Menu::create([
-            'parent_id'     => 0,
+            'parent_id'     => $menuParentId,
             'title'         => $apps->name,
             'icon'          => $apps->icon,
             'uri'           => '',
         ]);
-        $menu->permissions()->create([
+        $permission = $menu->permissions()->create([
             'name' => $apps->name,
             'slug' => 'apps_' . $apps->id,
             'http_method' => '',
             'http_path'   => '',
-            'parent_id'   => 0,
         ]);
+        $permission->parent_id = $permissionsParentId;
+        $permission->save();
         DB::table('apps')->where('id', $apps->id)->update(['menu_id' => $menu->id]);
     }
 }

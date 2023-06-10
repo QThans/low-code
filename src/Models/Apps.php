@@ -4,23 +4,20 @@ namespace Thans\Bpm\Models;
 
 use Dcat\Admin\Models\Administrator;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Traits\ModelTree;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Overtrue\LaravelVersionable\Versionable;
 use Spatie\EloquentSortable\Sortable;
-use Spatie\EloquentSortable\SortableTrait;
 
 class Apps extends Model implements Sortable
 {
-    use SortableTrait, Versionable, HasDateTimeFormatter, SoftDeletes;
+    use Versionable, ModelTree, HasDateTimeFormatter, SoftDeletes;
     protected $table = 'apps';
-
-    protected $sortable = [
-        // 设置排序字段名称
-        'order_column_name' => 'order',
-        // 是否在创建时自动排序，此参数建议设置为true
-        'sort_when_creating' => true,
-    ];
+    protected $titleColumn = 'name';
+    protected $parentColumn = 'parent_id';
+    protected $orderColumn = 'order';
+    
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'apps_departments')->withTimestamps();
@@ -48,5 +45,13 @@ class Apps extends Model implements Sortable
     public static function getByNoDepartment()
     {
         return  self::with('departments')->whereDoesntHave('departments')->get();
+    }
+    /**
+     * Get Parent Apps
+     * @return BelongsTo 
+     */
+    public function parent()
+    {
+        return $this->hasOne(Apps::class, 'id', 'parent_id');
     }
 }

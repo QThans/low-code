@@ -8,7 +8,7 @@ class DepartmentUser extends RowAction
 {
     /**
      * 返回字段标题
-     * 
+     *
      * @return string
      */
     public function title()
@@ -18,7 +18,7 @@ class DepartmentUser extends RowAction
 
     /**
      * 添加JS
-     * 
+     *
      * @return string
      */
     protected function script()
@@ -27,13 +27,13 @@ class DepartmentUser extends RowAction
 
 $('.grid-user-row').off('click');
 $('.grid-user-row').on('click', function () {
-    layer.open({
-        type: 2,
-        title: '预览代码',
-        area: ['80%', '80%'],
-        content: '/admin/bpm/department/user?_resource_=1&department_id='+$(this).attr('data-id'),
-    });
-    
+    // layer.open({
+    //     type: 2,
+    //     title: '部门分配',
+    //     area: ['80%', '80%'],
+    //     content: '/admin/bpm/department/user?_resource_=1&department_id='+$(this).attr('data-id'),
+    // });
+    window.open('/admin/bpm/department/user?department_id='+$(this).attr('data-id'));
     return false;
 });
 JS;
