@@ -2,7 +2,7 @@
 
 完全开源的低代码开发平台，可以通过全配置+少量代码实现大量管理应用。
 
-[Demo网站](http://bpm.thans.cn)
+[Demo网站](http://81.68.176.146/)
 
 该项目已被某些公司用于开发内部系统，先将核心开源。有一些发现的、未发现的BUG存在，如果疑问或者遇到了请提交**issue**。
 
@@ -22,7 +22,7 @@
 1. 创建 **Laravel 8.0** 应用
 
 ```
-composer create-project --prefer-dist laravel/laravel {替换为项目名称} 8.*
+composer create-project --prefer-dist laravel/laravel {替换为项目名称} 7.*
 ```
 
 2. 进入项目目录
@@ -34,7 +34,7 @@ composer create-project --prefer-dist laravel/laravel {替换为项目名称} 8.
 3. 安装本扩展
 
 ```
-composre require thans/bpm
+composer require thans/bpm
 ```
 
 
@@ -46,7 +46,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_DATABASE=lowcode
 DB_USERNAME=lowcode
-DB_PASSWORD=EY2mGyCLCh5h
+DB_PASSWORD=
 ```
 
 5. 运行命令：

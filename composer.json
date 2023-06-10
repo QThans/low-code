@@ -1,6 +1,6 @@
 {
     "name": "thans/bpm",
-    "description": "description...",
+    "description": "A low code BPM.",
     "type": "library",
     "keywords": [
         "dcat-admin",
@@ -39,7 +39,7 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/QThans/dcat-admin.git"
+            "url": "https://gitee.com/thans/dcat-admin.git"
         }
     ]
 }
