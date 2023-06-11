@@ -7,7 +7,7 @@
         "extension"
     ],
     "homepage": "https://github.com/thans/bpm",
-    "license": "MIT",
+    "license": "",
     "authors": [
         {
             "name": "Lei",
@@ -19,7 +19,7 @@
         "overtrue/laravel-versionable": "^2.0",
         "maatwebsite/excel": "^3.1",
         "ramsey/uuid": "^4.0",
-        "dcat/laravel-admin": "dev-master"
+        "thans/laravel-admin": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -35,11 +35,5 @@
                 "Thans\\Bpm\\BpmServiceProvider"
             ]
         }
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://gitee.com/thans/dcat-admin.git"
-        }
-    ]
+    }
 }
