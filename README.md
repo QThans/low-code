@@ -85,15 +85,6 @@ location / {
 
 MIT
 
-# 付费项目
-
-1. 使用指导 500元加WeChat，提供答疑。
-2. 帮忙配置 2k/表单
-
-# 免费项目
-
-1. 请提交issue
-
 # 联系方式
 
 ![WeChat](https://img.thans.cn/wechat.jpg)
